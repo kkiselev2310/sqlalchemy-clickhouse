@@ -80,6 +80,15 @@ class ClickHouseCompiler(PGCompiler):
         else:
             return self.process(cast.clause, **kwargs)
 
+    def visit_join(self, join, asfrom=False, **kwargs):
+        join_type = " ALL INNER JOIN "
+        return ''.join(
+            (self.process(join.left, asfrom=True, **kwargs),
+             join_type,
+             self.process(join.right, asfrom=True, **kwargs),
+             " USING ",
+             self.process(join.onclause, asfrom=True, **kwargs)))
+
     def visit_substring_func(self, func, **kw):
         s = self.process(func.clauses.clauses[0], **kw)
         start = self.process(func.clauses.clauses[1], **kw)
